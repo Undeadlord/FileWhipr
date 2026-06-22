@@ -1,0 +1,42 @@
+# --------------------------------------------------------------------------- #
+# Python
+# --------------------------------------------------------------------------- #
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# --------------------------------------------------------------------------- #
+# FileWhipr runtime artifacts
+# --------------------------------------------------------------------------- #
+# Debug log is rewritten on every launch (mode="w") — never commit it.
+filewhipr_debug.log
+
+# Per-user settings — generated from defaults on first run. Shipping a populated
+# copy would override the in-code _DEFAULT_EXTENSIONS for fresh installs.
+filewhipr_settings.json
+
+# Per-PID launcher temp files / lock (normally written to %TEMP%, but ignore
+# here in case anyone runs with TEMP pointed at the repo during testing).
+filewhip_path_*.txt
+filewhip_launcher.lock
+
+# --------------------------------------------------------------------------- #
+# Editors / OS
+# --------------------------------------------------------------------------- #
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store

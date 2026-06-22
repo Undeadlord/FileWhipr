@@ -1,0 +1,6 @@
+# FileWhipr runtime dependencies
+#
+# PySide6 is the only third-party requirement. A minimum-version pin is used
+# (rather than an exact ==) so end users pick up current wheels and security
+# fixes; FileWhipr uses only stable, long-standing PySide6 APIs.
+PySide6>=6.5
