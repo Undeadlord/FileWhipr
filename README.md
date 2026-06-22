@@ -11,9 +11,6 @@ as a single combined source.
 
 Built with Python and [PySide6](https://www.qt.io/qt-for-python).
 
-> Replace `Undeadlord/FileWhipr` below with your actual repository path if it
-> differs.
-
 ---
 
 ## Features
