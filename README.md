@@ -173,3 +173,11 @@ FileWhipr is released under the [MIT License](LICENSE).
 
 It uses **PySide6**, which is licensed under the LGPL v3. PySide6 is imported
 (dynamically linked) and unmodified; see [`NOTICE`](NOTICE) for details.
+
+---
+
+## Disclaimer
+
+FileWhipr is provided under the MIT License, without warranty of any kind. It
+performs copy and move operations on user-selected files, so review your source
+folder, destination folder, extension, and action before running it.
