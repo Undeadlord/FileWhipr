@@ -5,8 +5,8 @@ A small Windows utility that copies or moves files by extension out of a folder
 entirely from the Explorer right-click menu.
 
 Right-click a folder, pick **FileWhipr**, choose an extension (`.pdf`, `.jpg`,
-`.stl`, whatever), pick **Copy** or **Move** and a destination, and it sweeps up
-every matching file for you. Select several folders at once and it treats them
+`.stl`, whatever), pick **Copy** or **Move** and a destination, and it whips
+every matching file into shape for you. Select several folders at once and it treats them
 as a single combined source.
 
 Built with Python and [PySide6](https://www.qt.io/qt-for-python).
@@ -22,6 +22,8 @@ Built with Python and [PySide6](https://www.qt.io/qt-for-python).
 - **Copy or Move**, with optional **recursive** descent into subfolders.
 - **Live scan + transfer progress** off the UI thread, fully cancellable
   mid-operation.
+- **Destination safety checks** — recursive operations will not run when the
+  destination is the source folder or inside a source folder.
 - **Automatic de-collision** — if a file of the same name already exists at the
   destination, the copy is renamed `name (1).ext`, `name (2).ext`, … rather than
   overwritten.
@@ -65,6 +67,9 @@ Built with Python and [PySide6](https://www.qt.io/qt-for-python).
    You should see a confirmation that the entry was installed. Right-click any
    folder (or inside an open folder) and you'll find **FileWhipr** in the menu.
 
+   If you are updating an existing checkout, rerun this command after pulling
+   the latest files so the Explorer context-menu registration is refreshed.
+
 ### Removing it
 
 ```powershell
@@ -82,6 +87,11 @@ This removes the registry entries. You can then delete the folder.
 - Choose the **extension** to act on (or type a custom one).
 - Pick **Copy** or **Move**, toggle **Include subfolders** as needed.
 - Choose a **destination** and hit **Scan and Copy / Move**.
+
+When **Include subfolders** is enabled, FileWhipr blocks destinations that are
+the same as a source folder or nested inside one of the source folders. This
+prevents recursive copy/move operations from pulling their own output back into
+the scan.
 
 You can also run it directly without the context menu — it will prompt you to
 pick a folder:

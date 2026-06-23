@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""act_on_files.py — FileWhipr: recursive copy/move of files by extension, PySide6 GUI.
+"""filewhipr.py — FileWhipr: recursive copy/move of files by extension, PySide6 GUI.
 
 Launched from a Windows Explorer folder context-menu entry.
 The selected folder path is passed as the first command-line argument.
@@ -254,14 +254,24 @@ class FileWorker(QObject):
             self.file_started.emit(src.name, i + 1, total_files)
             try:
                 dest = unique_destination(self._dest_dir, src.name)
+                cancelled_current = False
                 with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
                     while True:
+                        if self._cancel.is_set():
+                            cancelled_current = True
+                            break
                         block = fsrc.read(self._CHUNK)
                         if not block:
                             break
                         fdst.write(block)
                         bytes_done += len(block)
                         self.progress.emit(bytes_done, total_bytes)
+                if cancelled_current:
+                    try:
+                        dest.unlink(missing_ok=True)
+                    except OSError as exc:
+                        log.warning("Could not remove partial output %s: %s", dest, exc)
+                    break
                 shutil.copystat(src, dest)
                 if self._move:
                     src.unlink()
@@ -724,14 +734,21 @@ class FileWhiprWindow(QWidget):
             return
         dest_dir = Path(dest_text)
 
-        if self.move_radio.isChecked():
-            try:
-                dest_resolved = dest_dir.resolve()
-                if any(dest_resolved == s.resolve() for s in self._sources):
+        try:
+            dest_resolved = dest_dir.resolve()
+            for source in self._sources:
+                source_resolved = source.resolve()
+                if dest_resolved == source_resolved:
                     self._warn("Destination matches a source folder. Pick a different folder.")
                     return
-            except OSError:
-                pass
+                if self.recursive_check.isChecked() and dest_resolved.is_relative_to(source_resolved):
+                    self._warn(
+                        "Destination is inside a source folder. Pick a different folder "
+                        "or turn off Include subfolders."
+                    )
+                    return
+        except OSError:
+            pass
 
         self._start_scan(ext, dest_dir)
 

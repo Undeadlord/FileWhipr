@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-"""_launcher.py — Multi-folder aggregator for the FileWhip context-menu entry.
+"""_launcher.py — Multi-folder aggregator for the FileWhipr context-menu entry.
 
 Windows Explorer invokes this script once per selected folder when the user
 right-clicks multiple folders simultaneously. This script collects all the
-concurrent invocations and launches act_on_files.py exactly once with all
+concurrent invocations and launches filewhipr.py exactly once with all
 selected folder paths.
 
 How it works:
   1. Each instance appends its path to a shared temp file.
-  2. The first instance to create a lock file exclusively becomes the "trigger".
-  3. The trigger waits briefly for sibling instances to finish writing.
-  4. The trigger reads all paths, cleans up, and launches the main GUI.
+  2. Instances wait briefly so sibling multi-select launches can write first.
+  3. The first instance to create a lock file exclusively becomes the "trigger".
+  4. The trigger waits briefly for sibling instances to finish writing.
+  5. The trigger reads all paths, cleans up, and launches the main GUI.
+  6. Later invocations while the lock exists launch their own GUI instead of
+     joining an already-active collection.
 """
 
 import os
@@ -21,6 +24,7 @@ from pathlib import Path
 
 _TEMP = Path(os.environ.get("TEMP") or os.environ.get("TMP") or "C:\\Temp")
 _LOCK_FILE = _TEMP / "filewhip_launcher.lock"
+_COLLECT_DELAY = 0.15  # seconds to let selected-folder sibling processes start
 _DEBOUNCE = 0.4   # seconds to wait for sibling invocations
 _STALE_AGE = 30   # seconds before leftover files are treated as stale
 
@@ -58,9 +62,16 @@ def main() -> None:
 
     _purge_stale()
 
+    if _LOCK_FILE.exists():
+        subprocess.Popen([_pythonw(), str(_script()), incoming])
+        return
+
     # Step 1: Each instance writes to its own file — no concurrent-write collision.
     my_file = _my_path_file()
     my_file.write_text(incoming + "\n", encoding="utf-8")
+
+    # Let sibling Explorer invocations for the same multi-select write their paths.
+    time.sleep(_COLLECT_DELAY)
 
     # Step 2: Race to become the trigger instance.
     try:

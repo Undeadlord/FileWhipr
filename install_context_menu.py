@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""install_context_menu.py — Install / uninstall the FileWhip Windows Explorer context-menu entry.
+"""install_context_menu.py — Install / uninstall the FileWhipr Windows Explorer context-menu entry.
 
 Run with no arguments (or --install) to register the right-click entry.
 Run with --uninstall to remove it.
@@ -16,6 +16,10 @@ from pathlib import Path
 
 MENU_LABEL = "FileWhipr"
 _SHELL_KEYS = [
+    r"Software\Classes\Directory\shell\FileWhipr",
+    r"Software\Classes\Directory\Background\shell\FileWhipr",
+]
+_LEGACY_SHELL_KEYS = [
     r"Software\Classes\Directory\shell\FileWhip",
     r"Software\Classes\Directory\Background\shell\FileWhip",
 ]
@@ -77,11 +81,16 @@ def install() -> None:
             winreg.SetValueEx(key, "MUIVerb", 0, winreg.REG_SZ, MENU_LABEL)
             # Icon value tells Explorer which icon to show in the context menu.
             winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, ico)
+            # Microsoft documents MultiSelectModel for verbs that support multiple items.
+            winreg.SetValueEx(key, "MultiSelectModel", 0, winreg.REG_SZ, "Player")
 
         with winreg.CreateKeyEx(
             winreg.HKEY_CURRENT_USER, key_path + r"\command"
         ) as cmd_key:
             winreg.SetValueEx(cmd_key, "", 0, winreg.REG_SZ, command)
+
+    for key_path in _LEGACY_SHELL_KEYS:
+        _delete_key_tree(winreg.HKEY_CURRENT_USER, key_path)
 
     print(f'Installed: "{MENU_LABEL}" in Windows Explorer right-click menu.')
     print(f"  Script : {script}")
@@ -92,7 +101,7 @@ def install() -> None:
 
 
 def uninstall() -> None:
-    for key_path in _SHELL_KEYS:
+    for key_path in _SHELL_KEYS + _LEGACY_SHELL_KEYS:
         _delete_key_tree(winreg.HKEY_CURRENT_USER, key_path)
 
     print('Removed "FileWhipr…" from the Windows Explorer context menu.')
