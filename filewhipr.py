@@ -15,8 +15,8 @@ import threading
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Qt, QThread, Signal
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import QObject, QPoint, QSize, Qt, QThread, Signal
+from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap, QPolygon
 from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
@@ -53,8 +53,8 @@ log = logging.getLogger("filewhipr")
 log.info("=== FileWhipr starting; debug log at %s ===", _LOG_PATH)
 
 
-__version__ = "0.2.0"
-__release_date__ = "06/22/2026"
+__version__ = "0.2.1"
+__release_date__ = "06/23/2026"
 _GITHUB_URL = "https://github.com/Undeadlord/FileWhipr"
 
 
@@ -76,6 +76,25 @@ _DEFAULT_SETTINGS: dict = {
     "close_on_any_result": False,
     "theme": "system",
 }
+
+
+def _arrow_icon(up: bool, dark: bool) -> QIcon:
+    pixmap = QPixmap(16, 16)
+    pixmap.fill(Qt.GlobalColor.transparent)
+
+    points = (
+        [QPoint(8, 3), QPoint(3, 12), QPoint(13, 12)]
+        if up
+        else [QPoint(3, 4), QPoint(13, 4), QPoint(8, 13)]
+    )
+
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    painter.setPen(Qt.PenStyle.NoPen)
+    painter.setBrush(QColor("#e9e9ef" if dark else "#1c1d22"))
+    painter.drawPolygon(QPolygon(points))
+    painter.end()
+    return QIcon(pixmap)
 
 
 def load_settings() -> dict:
@@ -327,12 +346,20 @@ class SettingsDialog(QDialog):
         remove_btn.clicked.connect(self._remove_ext)
         edit_row.addWidget(remove_btn)
 
-        up_btn = QPushButton("▲")
+        dark = _resolve_dark(self._settings)
+
+        up_btn = QPushButton()
+        up_btn.setIcon(_arrow_icon(up=True, dark=dark))
+        up_btn.setIconSize(QSize(14, 14))
+        up_btn.setToolTip("Move selected extension up")
         up_btn.setFixedWidth(32)
         up_btn.clicked.connect(self._move_up)
         edit_row.addWidget(up_btn)
 
-        down_btn = QPushButton("▼")
+        down_btn = QPushButton()
+        down_btn.setIcon(_arrow_icon(up=False, dark=dark))
+        down_btn.setIconSize(QSize(14, 14))
+        down_btn.setToolTip("Move selected extension down")
         down_btn.setFixedWidth(32)
         down_btn.clicked.connect(self._move_down)
         edit_row.addWidget(down_btn)
@@ -1081,9 +1108,12 @@ QListWidget {{
     border-radius: 8px;
     padding: 4px;
 }}
-QListWidget::item {{ padding: 4px 6px; border-radius: 4px; color: {text}; }}
-QListWidget::item:selected {{ background: {accent}; color: #ffffff; }}
 QListWidget::item:alternate {{ background: {list_alt}; }}
+QListWidget::item {{ padding: 4px 6px; border-radius: 4px; color: {text}; }}
+QListWidget::item:selected, QListWidget::item:selected:active, QListWidget::item:selected:!active {{
+    background: {accent};
+    color: #ffffff;
+}}
 """
 
 

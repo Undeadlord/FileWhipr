@@ -1,0 +1,151 @@
+# -*- mode: python ; coding: utf-8 -*-
+from pathlib import Path
+
+root = Path(SPECPATH)
+common_datas = [
+    (str(root / "FileWhipr.ico"), "."),
+    (str(root / "LICENSE"), "."),
+    (str(root / "NOTICE"), "."),
+    (str(root / "README.md"), "."),
+]
+
+qt_excludes = [
+    "PySide6.Qt3DAnimation",
+    "PySide6.Qt3DCore",
+    "PySide6.Qt3DExtras",
+    "PySide6.Qt3DInput",
+    "PySide6.Qt3DLogic",
+    "PySide6.Qt3DRender",
+    "PySide6.QtBluetooth",
+    "PySide6.QtCharts",
+    "PySide6.QtConcurrent",
+    "PySide6.QtDataVisualization",
+    "PySide6.QtDesigner",
+    "PySide6.QtGraphs",
+    "PySide6.QtHelp",
+    "PySide6.QtHttpServer",
+    "PySide6.QtLocation",
+    "PySide6.QtMultimedia",
+    "PySide6.QtMultimediaWidgets",
+    "PySide6.QtNetworkAuth",
+    "PySide6.QtNfc",
+    "PySide6.QtOpenGL",
+    "PySide6.QtOpenGLWidgets",
+    "PySide6.QtPdf",
+    "PySide6.QtPdfWidgets",
+    "PySide6.QtPositioning",
+    "PySide6.QtPrintSupport",
+    "PySide6.QtQml",
+    "PySide6.QtQuick",
+    "PySide6.QtQuick3D",
+    "PySide6.QtQuickControls2",
+    "PySide6.QtQuickWidgets",
+    "PySide6.QtRemoteObjects",
+    "PySide6.QtScxml",
+    "PySide6.QtSensors",
+    "PySide6.QtSerialBus",
+    "PySide6.QtSerialPort",
+    "PySide6.QtSpatialAudio",
+    "PySide6.QtSql",
+    "PySide6.QtStateMachine",
+    "PySide6.QtSvg",
+    "PySide6.QtSvgWidgets",
+    "PySide6.QtTest",
+    "PySide6.QtTextToSpeech",
+    "PySide6.QtUiTools",
+    "PySide6.QtVirtualKeyboard",
+    "PySide6.QtWebChannel",
+    "PySide6.QtWebEngineCore",
+    "PySide6.QtWebEngineQuick",
+    "PySide6.QtWebEngineWidgets",
+    "PySide6.QtWebSockets",
+    "PySide6.QtXml",
+]
+
+main_a = Analysis(
+    ["filewhipr.py"],
+    pathex=[str(root)],
+    binaries=[],
+    datas=common_datas,
+    hiddenimports=[],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=qt_excludes,
+    noarchive=False,
+    optimize=0,
+)
+
+launcher_a = Analysis(
+    ["_launcher.py"],
+    pathex=[str(root)],
+    binaries=[],
+    datas=[],
+    hiddenimports=[],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    noarchive=False,
+    optimize=0,
+)
+
+MERGE(
+    (main_a, "filewhipr", "FileWhipr"),
+    (launcher_a, "_launcher", "FileWhiprLauncher"),
+)
+
+main_pyz = PYZ(main_a.pure)
+main_exe = EXE(
+    main_pyz,
+    main_a.dependencies,
+    main_a.scripts,
+    [],
+    exclude_binaries=True,
+    name="FileWhipr",
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon=str(root / "FileWhipr.ico"),
+)
+
+launcher_pyz = PYZ(launcher_a.pure)
+launcher_exe = EXE(
+    launcher_pyz,
+    launcher_a.dependencies,
+    launcher_a.scripts,
+    [],
+    exclude_binaries=True,
+    name="FileWhiprLauncher",
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon=str(root / "FileWhipr.ico"),
+)
+
+coll = COLLECT(
+    main_exe,
+    launcher_exe,
+    main_a.binaries,
+    main_a.datas,
+    launcher_a.binaries,
+    launcher_a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name="FileWhipr",
+)

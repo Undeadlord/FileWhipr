@@ -8,7 +8,11 @@ __pycache__/
 .eggs/
 build/
 dist/
-*.spec
+
+# Generated installer output and local build environment.
+installer-output/
+installer/.venv/
+installer/.tmp/
 
 # Virtual environments
 .venv/

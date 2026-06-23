@@ -43,6 +43,14 @@ Built with Python and [PySide6](https://www.qt.io/qt-for-python).
 
 ## Installation
 
+### Installer
+
+Download and run the latest `FileWhiprSetup-*.exe` from the project releases.
+The installer is per-user, does not require administrator rights, and registers
+the Explorer context-menu entry under `HKCU`.
+
+### From source
+
 1. Clone or download this repository to a folder you intend to keep — the
    context-menu entry points at the script in place, so don't delete it
    afterward:
@@ -77,6 +85,37 @@ python install_context_menu.py --uninstall
 ```
 
 This removes the registry entries. You can then delete the folder.
+
+---
+
+## Building the installer
+
+The release installer is built with PyInstaller and Inno Setup 6. The build
+script creates a local build virtual environment, installs PyInstaller and
+`PySide6_Essentials`, builds the app, trims unused Qt payload, and compiles the
+Inno installer.
+
+Prerequisites:
+
+- Python 3.13 available through the Python launcher as `py -3.13`.
+- Inno Setup 6 installed, with `ISCC.exe` either on `PATH` or in the default
+  Inno Setup install location.
+
+Before building a release, update the app version in:
+
+- `filewhipr.py`
+- `installer/FileWhipr.iss`
+
+Then run:
+
+```powershell
+.\installer\build_installer.ps1
+```
+
+The generated installer is written to `installer-output/`.
+
+Generated build folders (`build/`, `dist/`, `installer-output/`, and
+`installer/.venv/`) are intentionally ignored by Git.
 
 ---
 
@@ -122,6 +161,8 @@ Settings are stored in `filewhipr_settings.json` next to the script.
 | `filewhipr.py` | The main GUI application. |
 | `_launcher.py` | Aggregates multiple simultaneous folder selections into one launch. |
 | `install_context_menu.py` | Installs / uninstalls the Explorer context-menu entry. |
+| `FileWhipr.spec` | PyInstaller build recipe for the packaged app. |
+| `installer/` | Inno Setup script and local installer build script. |
 | `filewhipr_settings.json` | User settings (created/updated at runtime). |
 
 ---

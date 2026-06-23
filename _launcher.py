@@ -29,14 +29,30 @@ _DEBOUNCE = 0.4   # seconds to wait for sibling invocations
 _STALE_AGE = 30   # seconds before leftover files are treated as stale
 
 
-def _script() -> Path:
-    return Path(__file__).resolve().parent / "filewhipr.py"
+def _base_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent
+
+
+def _app_target() -> Path:
+    if getattr(sys, "frozen", False):
+        return _base_dir() / "FileWhipr.exe"
+    return _base_dir() / "filewhipr.py"
 
 
 def _pythonw() -> str:
     py = Path(sys.executable)
     pw = py.with_name("pythonw.exe")
     return str(pw) if pw.exists() else str(py)
+
+
+def _launch_app(paths: list[str]) -> None:
+    target = _app_target()
+    if getattr(sys, "frozen", False):
+        subprocess.Popen([str(target), *paths])
+    else:
+        subprocess.Popen([_pythonw(), str(target), *paths])
 
 
 def _my_path_file() -> Path:
@@ -63,7 +79,7 @@ def main() -> None:
     _purge_stale()
 
     if _LOCK_FILE.exists():
-        subprocess.Popen([_pythonw(), str(_script()), incoming])
+        _launch_app([incoming])
         return
 
     # Step 1: Each instance writes to its own file — no concurrent-write collision.
@@ -102,7 +118,7 @@ def main() -> None:
     _LOCK_FILE.unlink(missing_ok=True)
 
     # Step 6: Launch the main GUI with all collected folder paths.
-    subprocess.Popen([_pythonw(), str(_script()), *paths])
+    _launch_app(paths)
 
 
 if __name__ == "__main__":
